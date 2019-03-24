@@ -31,6 +31,18 @@
     <!-- TODO: Tidy up CSS as this is incorrect usage. -->
     <div class"columns">
         <div class="column is-centered">
+            <!-- Install dependencies section 
+                 TODO: Make this actually work
+            <div class="section" id="section-install">
+                
+                <div class="container content is-small has-text-centered">
+                    <h2>Setup</h2>
+                    <div id="install-bar-message">Checking and installing dependencies.</div>
+                    <br>
+                </div>
+            </div>
+            -->
+            
             <!-- Form submission section -->
             <div class="section" id="section-input-form">
                 <div class="container">
@@ -51,7 +63,7 @@
                 <!-- Loading bar -->
                 <div class="container content is-small has-text-centered">
                     <h2>Downloading</h2>
-                    <div><span id="loading-bar-url"></span> to ~/Downloads</div>
+                    <div id="loading-bar-message"></div>
                     <br>
                     <progress class="progress is-small is-primary" max="100"></progress>
                 </div>
@@ -97,13 +109,43 @@
             // Display loading bar
             const loadingBar = document.querySelector('#section-loading-bar');
             const loadingBarUrl = document.querySelector('#loading-bar-url');
-
             loadingBar.removeAttribute('hidden');
-            loadingBarUrl.innerHTML = videoUrl;
 
             // Send event to main.js
             ipcRenderer.send('video:add', videoUrl);
         }
+
+        // TODO: Make this work.
+        // // Display message to install section
+        // ipcRenderer.on('video:install', function (e, item) {
+        //     // Set loading bar message
+        //     const installBarMessage = document.querySelector('#install-bar-message');
+        //     installBarMessage.innerHTML = item;
+        // });
+
+        // // Display main contents
+        // ipcRenderer.on('video:install-done', function (e, item) {
+        //     if (item != null) {
+        //         // Set loading bar message
+        //         const installBarMessage = document.querySelector('#install-bar-message');
+        //         installBarMessage.innerHTML = item;
+        //         return;
+        //     }
+        //     // Hide install bar
+        //     const install = document.querySelector('#section-install');
+        //     install.setAttribute('hidden', true)
+
+        //     // Display form 
+        //     const form = document.querySelector('#section-input-form');
+        //     form.removeAttribute('hidden');
+        // });
+
+        // Clear screen when download is complete
+        ipcRenderer.on('video:downloading', function (e, item) {
+            // Set loading bar message
+            const loadingBarMessage = document.querySelector('#loading-bar-message');
+            loadingBarMessage.innerHTML = item;
+        });
 
         // Clear screen when download is complete
         ipcRenderer.on('video:done', function (e, item) {

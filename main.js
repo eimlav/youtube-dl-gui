@@ -2,6 +2,7 @@ const electron = require('electron');
 const url = require('url');
 const path = require('path');
 const {
+    execSync,
     spawn
 } = require('child_process');
 
@@ -31,6 +32,10 @@ app.on('ready', function () {
         slashes: true,
     }));
 
+    // Check for and install dependencies
+    // TODO: Make it actually run asynchronously
+    checkForDependencies(installDependencies);
+    
     // Quit app when closed
     mainWindow.on('closed', function () {
         app.quit();
@@ -98,6 +103,53 @@ const mainMenuTemplate = [{
         ]
     }
 ];
+
+// Check for dependencies
+async function checkForDependencies(callback) {
+    mainWindow.webContents.send('video:install', `Checking dependencies`);
+    // An error will be thrown if any binary is not found
+    try {
+        execSync('which brew');
+        execSync('which youtube-dl');
+        execSync('which ffmpeg');
+    } catch (_) {
+        callback();
+    }
+}
+
+// Installs runtime dependencies
+// TODO: Fix this horrible spaghetti code. Sorry I don't know how to write JS -_o_-
+function installDependencies() {
+    // Install HomeBrew
+    mainWindow.webContents.send('video:install', `Installing HomeBrew`);
+    try {
+        execSync('ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null');
+    } catch(e) {
+        if (e.toString().match(/already installed/)) return;
+        mainWindow.webContents.send('video:install-done', `Encountered error: ${e}`);
+        return;
+    }
+
+    // Install youtube-dl
+    mainWindow.webContents.send('video:install', `Installing youtube-dl`);
+    try {
+        execSync('brew install youtube-dl');
+    } catch(e) {
+        if (e.toString().match(/already installed/)) return;
+        mainWindow.webContents.send('video:install-done', `Encountered error: ${e}`);
+        return;
+    }
+
+    // Install ffmpeg
+    mainWindow.webContents.send('video:install', `Installing ffmpeg`);
+    try {
+        execSync('brew install ffmpeg');
+    } catch(e) {
+        if (e.toString().match(/already installed/)) return;
+        mainWindow.webContents.send('video:install-done', `Encountered error: ${e}`);
+        return;
+    }
+}
 
 // Builds youtube-dl command used for downloading video
 function buildDownloadCommand(videoUrl) {
