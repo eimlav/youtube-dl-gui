@@ -51,7 +51,7 @@
                 <!-- Loading bar -->
                 <div class="container content is-small has-text-centered">
                     <h2>Downloading</h2>
-                    <div><span id="loading-bar-url"></span> to ~/Downloads</div>
+                    <div id="loading-bar-message"></div>
                     <br>
                     <progress class="progress is-small is-primary" max="100"></progress>
                 </div>
@@ -97,13 +97,18 @@
             // Display loading bar
             const loadingBar = document.querySelector('#section-loading-bar');
             const loadingBarUrl = document.querySelector('#loading-bar-url');
-
             loadingBar.removeAttribute('hidden');
-            loadingBarUrl.innerHTML = videoUrl;
 
             // Send event to main.js
             ipcRenderer.send('video:add', videoUrl);
         }
+
+        // Clear screen when download is complete
+        ipcRenderer.on('video:downloading', function (e, item) {
+            // Set loading bar message
+            const loadingBarMessage = document.querySelector('#loading-bar-message');
+            loadingBarMessage.innerHTML = item;
+        });
 
         // Clear screen when download is complete
         ipcRenderer.on('video:done', function (e, item) {

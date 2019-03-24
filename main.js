@@ -1,6 +1,10 @@
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
+var fs = require('fs');
+var youtubedl = require('@microlink/youtube-dl');
+const homedir = require('os').homedir();
+
 const {
     spawn
 } = require('child_process');
@@ -12,10 +16,7 @@ const {
     ipcMain
 } = electron;
 
-const commandExecutable = 'youtube-dl',
-    commandFormat = '-f \'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best\'',
-    commandOutputDirectory = '-o \'~/Downloads',
-    commandOutputTitle = '/%(title)s.%(ext)s\''
+const videoOutputDirectory = `${homedir}/Downloads`;
 
 // Create main window
 app.on('ready', function () {
@@ -99,13 +100,6 @@ const mainMenuTemplate = [{
     }
 ];
 
-// Builds youtube-dl command used for downloading video
-function buildDownloadCommand(videoUrl) {
-    var command = `${commandExecutable} ${commandFormat} ${commandOutputDirectory}${commandOutputTitle} ${videoUrl}`;
-    return command;
-}
-
-// Executes the downloading of the video
 function downloadVideo(videoUrl) {
     // Check video url is valid
     result = videoUrl.match(/^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/)
@@ -114,28 +108,30 @@ function downloadVideo(videoUrl) {
         return;
     }
 
-    // Build command
-    command = buildDownloadCommand(videoUrl);
+    // var video = youtubedl(videoUrl, ['-f', '\'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best\'']);
+    var video = youtubedl(videoUrl);
+    
+    video.on('info', function (info) {
+        'use strict';
+        mainWindow.webContents.send('video:downloading', `Downloading ${videoUrl} to ${info._filename}`);
 
-    // Create child process to execute command
-    const child = spawn(`${command}`, {
-        shell: true,
+        var file = path.join(videoOutputDirectory, info._filename);
+        video.pipe(fs.createWriteStream(file));
     });
 
-    // Log errors
-    var error = '';
-    child.stderr.on('data', (data) => {
-        error += (`\n${data}`)
+    video.on('error', function(info){
+        console.log(info);
+        mainWindow.webContents.send('video:done', 'Encountered error.');
+    })
+
+    video.on('complete', function complete(info) {
+        'use strict';
+        mainWindow.webContents.send('video:done', 'Video already downloaded.');
     });
 
-    // Signal mainWindow.html when done
-    child.on('close', (code) => {
-        // Return error if it occured, else nothing
-        if (code !== 0) {
-            mainWindow.webContents.send('video:done', `Encountered error:\n${error}`);
-        } else {
-            mainWindow.webContents.send('video:done', 'Download completed successfully!');
-        }
+    video.on('end', function () {
+        'use strict';
+        mainWindow.webContents.send('video:done', 'Download completed successfully!');
     });
 }
 
