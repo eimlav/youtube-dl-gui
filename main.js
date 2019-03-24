@@ -134,7 +134,7 @@ function downloadVideo(videoUrl) {
         if (code !== 0) {
             mainWindow.webContents.send('video:done', `Encountered error:\n${error}`);
         } else {
-            mainWindow.webContents.send('video:done');
+            mainWindow.webContents.send('video:done', 'Download completed successfully!');
         }
     });
 }

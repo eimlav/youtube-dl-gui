@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/eimlav/youtube-dl-gui#readme",
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.8.1",
     "bulma": "^0.7.4",
     "electron": "^4.1.1"
   }

@@ -1,38 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Template based off of TraverseyMedia https://www.youtube.com/watch?v=kN1Czs0m1SU -->
+<!-- Template based off of TraversyMedia https://www.youtube.com/watch?v=kN1Czs0m1SU -->
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../../node_modules/bulma/css/bulma.min.css">
+    <link rel="stylesheet" href="../../node_modules/@fortawesome/fontawesome-free/css/fontawesome.min.css">
+    <link rel="stylesheet" href="../../node_modules/@fortawesome/fontawesome-free/css/brands.min.css">
 
     <title>youtube-dl GUI</title>
 </head>
 
 <body>
     <!-- Nav bar -->
-    <nav>youtube-dl GUI</nav>
-
-    <!-- URL submission form -->
-    <form id="input-form">
-        <div>
-            <label>Enter URL</label>
-            <input type="text" id="video-url" autofocus>
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <a href="https://github.com/eimlav/youtube-dl-gui" class="navbar-item">
+                <span class="icon">
+                    <i class="fab fa-github"></i>
+                </span>
+            </a>
+            <a class="navbar-item">YouTube-dl-GUI</a>
         </div>
-        <button type="submit">Download</button>
-    </form>
+    </nav>
 
-    <div id="output">
-        <p id="output-message"></p>
-    </div>
+    <!-- TODO: Tidy up CSS as this is incorrect usage. -->
+    <div class"columns">
+        <div class="column is-centered">
+            <!-- Form submission section -->
+            <div class="section" id="section-input-form">
+                <div class="container">
+                    <form class="has-text-centered">
+                        <div class="field">
+                            <label class="label">Enter URL</label>
+                            <div class="control">
+                                <input class="input" type="text" id="video-url" autofocus>
+                            </div>
+                        </div>
+                        <button class="button is-small" type="submit">Download</button>
+                    </form>
+                </div>
+            </div>
 
-    <!-- Loading bar -->
-    <div class="hidden" id="loading-bar">
-        <div class="loader center"></div>
-        <div class="text-center">Downloading <span id="loading-bar-url"></span> to ~/Downloads</div>
+            <!-- Loading bar section -->
+            <div class="section" id="section-loading-bar" hidden>
+                <!-- Loading bar -->
+                <div class="container content is-small has-text-centered">
+                    <h2>Downloading</h2>
+                    <div><span id="loading-bar-url"></span> to ~/Downloads</div>
+                    <br>
+                    <progress class="progress is-small is-primary" max="100"></progress>
+                </div>
+            </div>
+
+            <!-- Output section -->
+            <div class="section" id="section-output" hidden>
+                <div class="container has-text-centered content is-small">
+                    <h2>Result</h2>
+                    <p id="output-message"></p>
+                    <button class="button is-small" id="return-button">Return</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- JS to submit form data to main.js -->
@@ -54,14 +87,18 @@
             const videoUrl = document.querySelector('#video-url').value;
 
             // Hide submission form
-            const form = document.querySelector('#input-form');
-            form.className = 'hidden';
+            const form = document.querySelector('#section-input-form');
+            form.setAttribute('hidden', true);
+
+            // Hide output
+            const output = document.querySelector('#section-output');
+            output.setAttribute('hidden', true);
 
             // Display loading bar
-            const loadingBar = document.querySelector('#loading-bar');
+            const loadingBar = document.querySelector('#section-loading-bar');
             const loadingBarUrl = document.querySelector('#loading-bar-url');
 
-            loadingBar.className = '';
+            loadingBar.removeAttribute('hidden');
             loadingBarUrl.innerHTML = videoUrl;
 
             // Send event to main.js
@@ -71,24 +108,31 @@
         // Clear screen when download is complete
         ipcRenderer.on('video:done', function (e, item) {
             // Hide loading bar
-            const loadingBar = document.querySelector('#loading-bar');
-            loadingBar.className = 'hidden';
+            const loadingBar = document.querySelector('#section-loading-bar');
+            loadingBar.setAttribute('hidden', true);
 
-            // Display submission form
-            const form = document.querySelector('#input-form');
-            form.className = '';
+            // Display output field
+            const output = document.querySelector('#section-output');
+            output.removeAttribute('hidden');
 
             // Clear form input
-            const videoUrlInput = document.querySelector('#video-url')
+            const videoUrlInput = document.querySelector('#video-url');
             videoUrlInput.value = '';
 
-            // If an error occured display it, else state download success
-            console.log(item);
-            if (item != null) {
-                outputMessage.innerHTML = item;
-            } else {
-                outputMessage.innerHTML = 'Download completed successfully!';
-            }
+            // Display result of download
+            outputMessage.innerHTML = item;
+        });
+
+        // Listen for click on #return button
+        const returnButton = document.querySelector('#return-button');
+        returnButton.addEventListener('click', function () {
+            // Display submission form
+            const form = document.querySelector('#section-input-form');
+            form.removeAttribute('hidden');
+
+            // Hide output field
+            const output = document.querySelector('#section-output');
+            output.setAttribute('hidden', true);
         });
     </script>
 </body>
