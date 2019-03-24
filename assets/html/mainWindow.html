@@ -21,19 +21,18 @@
         <div>
             <label>Enter URL</label>
             <input type="text" id="video-url" autofocus>
-            <div><small>The best quality video+audio format will be used.</small></div>
         </div>
         <button type="submit">Download</button>
-        <div id="input-form-error">
-            <p>Encountered error downloading video:</p>
-            <p id="input-form-error-message"></p>
-        </div>
     </form>
 
+    <div id="output">
+        <p id="output-message"></p>
+    </div>
+
     <!-- Loading bar -->
-    <div>
+    <div class="hidden" id="loading-bar">
         <div class="loader center"></div>
-        <div class="text-center">Downloading <span id="loader-url"></span> to ~/Downloads</div>
+        <div class="text-center">Downloading <span id="loading-bar-url"></span> to ~/Downloads</div>
     </div>
 
     <!-- JS to submit form data to main.js -->
@@ -42,15 +41,55 @@
         const {
             ipcRenderer
         } = electron;
+        const outputMessage = document.querySelector('#output-message');
 
         const form = document.querySelector('form');
         form.addEventListener('submit', submitForm);
 
+        // Submit form to main.js
         function submitForm(e) {
             e.preventDefault();
+
+            // Retrieve video url
             const videoUrl = document.querySelector('#video-url').value;
-            ipcRenderer.send('video-url:add', videoUrl);
+
+            // Hide submission form
+            const form = document.querySelector('#input-form');
+            form.className = 'hidden';
+
+            // Display loading bar
+            const loadingBar = document.querySelector('#loading-bar');
+            const loadingBarUrl = document.querySelector('#loading-bar-url');
+
+            loadingBar.className = '';
+            loadingBarUrl.innerHTML = videoUrl;
+
+            // Send event to main.js
+            ipcRenderer.send('video:add', videoUrl);
         }
+
+        // Clear screen when download is complete
+        ipcRenderer.on('video:done', function (e, item) {
+            // Hide loading bar
+            const loadingBar = document.querySelector('#loading-bar');
+            loadingBar.className = 'hidden';
+
+            // Display submission form
+            const form = document.querySelector('#input-form');
+            form.className = '';
+
+            // Clear form input
+            const videoUrlInput = document.querySelector('#video-url')
+            videoUrlInput.value = '';
+
+            // If an error occured display it, else state download success
+            console.log(item);
+            if (item != null) {
+                outputMessage.innerHTML = item;
+            } else {
+                outputMessage.innerHTML = 'Download completed successfully!';
+            }
+        });
     </script>
 </body>
 

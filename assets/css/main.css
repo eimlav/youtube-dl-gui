@@ -27,3 +27,11 @@
 .text-center{
     text-align: center;
 }
+
+.hidden{
+    display: none;
+}
+
+.not-hidden{
+    display: block;
+}
