@@ -17,6 +17,9 @@ Upon running for the first time, the following dependencies will be installed on
 - youtube-dl
 - ffmpeg
 
+The installation currently happens in the background before the window is loaded so there wil be nothing
+displayed until it is complete.
+
 The best quality video/audio format will be used.
 
 Enjoy!

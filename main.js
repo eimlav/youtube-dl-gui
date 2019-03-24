@@ -166,6 +166,8 @@ function downloadVideo(videoUrl) {
         return;
     }
 
+    mainWindow.webContents.send('video:downloading', `Downloading ${videoUrl} to your Downloads directory.`);
+
     // Build command
     command = buildDownloadCommand(videoUrl);
 
