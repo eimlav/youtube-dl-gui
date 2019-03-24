@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Template based off of TraverseyMedia https://www.youtube.com/watch?v=kN1Czs0m1SU -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="stylesheet" href="../css/main.css">
+
+    <title>youtube-dl GUI</title>
+</head>
+
+<body>
+    <!-- Nav bar -->
+    <nav>youtube-dl GUI</nav>
+
+    <!-- URL submission form -->
+    <form id="input-form">
+        <div>
+            <label>Enter URL</label>
+            <input type="text" id="video-url" autofocus>
+            <div><small>The best quality video+audio format will be used.</small></div>
+        </div>
+        <button type="submit">Download</button>
+        <div id="input-form-error">
+            <p>Encountered error downloading video:</p>
+            <p id="input-form-error-message"></p>
+        </div>
+    </form>
+
+    <!-- Loading bar -->
+    <div>
+        <div class="loader center"></div>
+        <div class="text-center">Downloading <span id="loader-url"></span> to ~/Downloads</div>
+    </div>
+
+    <!-- JS to submit form data to main.js -->
+    <script>
+        const electron = require('electron');
+        const {
+            ipcRenderer
+        } = electron;
+
+        const form = document.querySelector('form');
+        form.addEventListener('submit', submitForm);
+
+        function submitForm(e) {
+            e.preventDefault();
+            const videoUrl = document.querySelector('#video-url').value;
+            ipcRenderer.send('video-url:add', videoUrl);
+        }
+    </script>
+</body>
+
+</html>

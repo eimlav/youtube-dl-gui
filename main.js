@@ -5,7 +5,8 @@ const path = require('path');
 const {
     app,
     BrowserWindow,
-    Menu
+    Menu,
+    ipcMain
 } = electron;
 
 // Create main window
@@ -17,7 +18,7 @@ app.on('ready', function(){
     
     // Load HTML into window
     mainWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'mainWindow.html'),
+        pathname: path.join(__dirname, 'assets/html/mainWindow.html'),
         protocol: 'file:',
         slashes: true,
     }));
@@ -32,6 +33,11 @@ app.on('ready', function(){
     
     // Insert menu
     Menu.setApplicationMenu(mainMenu);
+
+    // Listen for URL submit event from mainWindow.html
+    ipcMain.on('video-url:add', function(e, videoUrl){
+        console.log(videoUrl);
+    })
 })
 
 // Create menu template
