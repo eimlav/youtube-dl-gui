@@ -4,6 +4,7 @@
   "description": "A simple graphical user interface (GUI) application for downloading videos from online sources.",
   "main": "main.js",
   "scripts": {
+    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds",
     "start": "electron ."
   },
   "repository": {
@@ -20,6 +21,7 @@
     "@fortawesome/fontawesome-free": "^5.8.1",
     "bulma": "^0.7.4",
     "electron": "^4.1.1",
+    "electron-packager": "^13.1.1",
     "sudo-prompt": "^8.2.5"
   }
 }
