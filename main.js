@@ -20,7 +20,8 @@ const commandExecutable = 'youtube-dl',
 
 // Create main window
 app.on('ready', function () {
-    // TODO: Check youtube-dl is installed
+    // Add '/usr/local/bin' to PATH as this is where dependencies are installed
+    process.env['PATH'] = `${process.env['PATH']}:/usr/local/bin`;
 
     // Create main window
     mainWindow = new BrowserWindow({});
